@@ -2,8 +2,6 @@
 
 **Autonomous Cross-Timezone Engineering Handoff Orchestrator**
 
-![AsyncPulse product preview](public/picture.png)
-
 AsyncPulse passively synthesizes Git commits, pull requests, Slack threads, and CI/CD activity into an actionable shift brief. Oncoming engineers log in, read one digest, and start work without a standup.
 
 ---
@@ -24,10 +22,6 @@ Distributed engineering teams spanning US Pacific, India, and EMEA lose hours ev
 The cost compounds across seats. A 48-person distributed org burning 15 hours per engineer per month on handoff reconstruction wastes hundreds of hours and tens of thousands of dollars.
 
 ---
-
-## Demo Video
-
-> Video placeholder: add the AsyncPulse product walkthrough here.
 
 ## Solution
 
@@ -60,55 +54,38 @@ Gemini is used when `GEMINI_API_KEY` is present. If the key is missing or the mo
 ```mermaid
 flowchart TB
   subgraph Clients["Clients"]
-    Browser["React SPA"]
+    Browser["React SPA on port 3000"]
   end
 
-  subgraph Server["Express + Vite on port 3000"]
-    API["REST API /api"]
-    ViteMW["Vite middleware SPA"]
-    Synth["Brief Synthesis Engine"]
-    Heuristic["Heuristic Fallback"]
-    ShiftBrain["Shift Brain Q and A"]
+  subgraph Frontend["Vite Dev Server"]
+    UI["React UI"]
+    Proxy["Reverse proxy /api"]
   end
 
-  subgraph Data["In-memory domain store"]
-    Shifts["Shift Windows"]
-    Events["Passive Event Stream"]
-    Brief["Current Handoff Brief"]
-    Workspace["Workspace Config"]
+  subgraph Backend["Express API on port 3001"]
+    Routes["REST routes"]
+    Services["Domain services"]
+    Store["In-memory store"]
   end
 
-  subgraph External["External"]
-    Gemini["Gemini API"]
-    Slack["Slack Webhook"]
-  end
-
-  Browser -->|"fetch /api"| API
-  Browser --> ViteMW
-  API --> Shifts
-  API --> Events
-  API --> Brief
-  API --> Workspace
-  API --> Synth
-  API --> ShiftBrain
-  Synth -->|"GEMINI_API_KEY present"| Gemini
-  Synth -->|"key missing or error"| Heuristic
-  ShiftBrain -->|"optional"| Gemini
-  ShiftBrain -->|"fallback extractor"| Brief
-  API -->|"export-webhook"| Slack
+  Browser --> UI
+  UI -->|"fetch /api"| Proxy
+  Proxy -->|"http://127.0.0.1:3001"| Routes
+  Routes --> Services
+  Services --> Store
 ```
 
 ### Request path
 
 | Layer | Role |
 |-------|------|
-| `index.html` + `src/main.tsx` | React 19 SPA entry |
-| `src/App.tsx` | Loads shifts, stream, and latest brief; owns tabs and modals |
-| `server.ts` | Express API, synthesis, Q&A, checklist, workspace, webhook |
-| `src/types.ts` | Shared TypeScript contracts for frontend and backend |
-| Vite middleware | Dev SPA serving; production uses `dist/` static files |
+| `src/App.tsx` | React shell: loads shifts, stream, and latest brief |
+| `vite.config.ts` | Frontend on port 3000; proxies `/api` to backend 3001 |
+| `backend/src/app.ts` | Express REST API |
+| `backend/src/services/` | Stream, synthesis, Shift Brain, checklist, workspace |
+| `src/types.ts` | Shared TypeScript contracts |
 
-Frontend and backend share one port. The SPA calls `/api/*` on the same origin, so no CORS split is required in preview.
+The SPA still calls `/api/*` on the same origin. Vite forwards those requests to the Node backend.
 
 ---
 
@@ -252,26 +229,21 @@ flowchart LR
 
 ```text
 .
-├── index.html
-├── server.ts              Express API + Vite middleware
-├── src/
-│   ├── App.tsx            Shell, data loading, tabs
-│   ├── main.tsx
-│   ├── types.ts           Shared domain types
-│   ├── index.css
-│   └── components/
-│       ├── TimezoneRadar.tsx
-│       ├── HandoffBriefView.tsx
-│       ├── PassiveStreamFeed.tsx
-│       ├── ShiftBrainQA.tsx
-│       ├── SimulateEventModal.tsx
-│       ├── WorkspaceModal.tsx
-│       ├── ExportModal.tsx
-│       └── Toast.tsx
-├── tests/app.test.ts
-├── package.json
+├── src/                         React frontend
+├── backend/
+│   ├── src/
+│   │   ├── app.ts               Express app and routes
+│   │   ├── server.ts            Listen on port 3001
+│   │   ├── store.ts             In-memory domain store
+│   │   ├── seed.ts              Demo shift, events, brief
+│   │   └── services/            Stream, synthesis, Q and A, workspace
+│   └── tests/
+│       ├── services.test.ts     Unit TDD
+│       └── api.test.ts          HTTP contract TDD
+├── tests/app.test.ts            End-to-end API tests via frontend proxy
+├── start.sh                     Start backend + frontend together
 ├── vite.config.ts
-└── .env.example
+└── package.json
 ```
 
 ---
@@ -284,31 +256,29 @@ Prerequisites: Node.js 18+.
 # Install dependencies
 npm install
 
-# Optional: Gemini key for live synthesis and Shift Brain
-# Copy .env.example to .env.local and set GEMINI_API_KEY
-
-# Start the combined frontend + API server
-npm run dev
+# Start backend (3001) and frontend (3000) together
+bash start.sh
 ```
 
-The app listens on `http://localhost:3000`.
-
-Without `GEMINI_API_KEY`, synthesis and Q&A use the built-in heuristic/fallback path. The UI and APIs still work.
+The preview port is `http://localhost:3000`. API calls to `/api` are proxied to the backend on port 3001.
 
 ### Scripts
 
 ```bash
-# Typecheck
-npm run lint
+# Frontend only
+npm run dev
 
-# Integration tests (server must be running on port 3000)
+# Backend only
+npm run dev:backend
+
+# Backend unit + HTTP tests
 npm test
 
-# Production build
-npm run build
+# End-to-end API tests against the running frontend proxy
+npm run test:e2e
 
-# Production start
-npm start
+# Typecheck
+npm run lint
 ```
 
 ---
@@ -317,7 +287,9 @@ npm start
 
 Verified on this workspace:
 
-- Typecheck: `npm run lint` (`tsc --noEmit`) passed
-- Tests: 29 / 29 passed in `tests/app.test.ts`
-- Coverage includes shift radar, stream filters, ingest sanitization, brief contracts, synthesis fallbacks, Shift Brain, checklist 404s, workspace clamping, webhook export, and ROI math
-- Dev server: `npm run dev` on port 3000
+- Typecheck: `npm run lint` passed
+- Backend unit tests: 9 / 9 passed
+- Backend HTTP tests: 8 / 8 passed
+- Frontend proxy e2e: 29 / 29 passed in `tests/app.test.ts`
+- Frontend: port 3000
+- Backend: port 3001

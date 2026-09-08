@@ -1,0 +1,11 @@
+{
+  "name": "asyncpulse-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "tsx tests/services.test.ts && tsx tests/api.test.ts"
+  }
+}
