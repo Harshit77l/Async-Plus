@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-50: #f1faee;
+  --color-slate-100: #e8eee9;
+  --color-slate-200: #d8e2dc;
+  --color-slate-300: #c5d0ca;
+  --color-slate-400: #8b9aa3;
+  --color-slate-500: #5a6f7d;
+  --color-slate-600: #3d5a73;
+  --color-slate-700: #2c4a68;
+  --color-slate-800: #243f5c;
+  --color-slate-900: #1d3557;
+  --color-slate-950: #15263d;
+
+  --color-indigo-50: #eaf3f7;
+  --color-indigo-100: #d4e6ef;
+  --color-indigo-200: #a8c9dc;
+  --color-indigo-300: #7aadc8;
+  --color-indigo-400: #5c94b5;
+  --color-indigo-500: #457b9d;
+  --color-indigo-600: #3a6a89;
+  --color-indigo-700: #2f5773;
+  --color-indigo-800: #1d3557;
+  --color-indigo-900: #162a45;
+  --color-indigo-950: #0f1c2e;
+
+  --color-emerald-50: #eef5f1;
+  --color-emerald-100: #d8e2dc;
+  --color-emerald-200: #c1d4c9;
+  --color-emerald-300: #9bb8a8;
+  --color-emerald-400: #6d9a88;
+  --color-emerald-500: #4a7c6a;
+  --color-emerald-600: #3d6858;
+  --color-emerald-700: #2f5246;
+  --color-emerald-800: #233d34;
+  --color-emerald-900: #1a2e27;
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --surface: #ffffff;
+    --canvas: #f1faee;
+    --sage: #d8e2dc;
+    --mist: #e5e5e5;
+    --navy: #1d3557;
+    --steel: #457b9d;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #1d3557;
+    background-color: #f1faee;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 0% -10%, rgba(69, 123, 157, 0.08), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(216, 226, 220, 0.9), transparent 55%),
+      linear-gradient(180deg, #ffffff 0%, #f1faee 28%, #d8e2dc 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d8e2dc;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #457b9d;
+}

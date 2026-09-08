@@ -1,0 +1,6 @@
+{
+  "name": "AsyncPulse",
+  "description": "Cross-timezone handoff orchestrator that passively synthesizes Git, PRs, and Slack activity into actionable shift briefs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
