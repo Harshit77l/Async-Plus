@@ -2,6 +2,8 @@
 
 **Autonomous Cross-Timezone Engineering Handoff Orchestrator**
 
+![AsyncPulse product preview](public/picture.png)
+
 AsyncPulse passively synthesizes Git commits, pull requests, Slack threads, and CI/CD activity into an actionable shift brief. Oncoming engineers log in, read one digest, and start work without a standup.
 
 ---
@@ -22,6 +24,10 @@ Distributed engineering teams spanning US Pacific, India, and EMEA lose hours ev
 The cost compounds across seats. A 48-person distributed org burning 15 hours per engineer per month on handoff reconstruction wastes hundreds of hours and tens of thousands of dollars.
 
 ---
+
+## Demo Video
+
+> Video placeholder: add the AsyncPulse product walkthrough here.
 
 ## Solution
 
